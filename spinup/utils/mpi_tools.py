@@ -32,9 +32,11 @@ def mpi_fork(n, bind_to_core=False):
         if bind_to_core:
             args += ["-bind-to", "core"]
         args += [sys.executable] + sys.argv
+        msg(args, 'mpi_fork')
         subprocess.check_call(args, env=env)
         sys.exit()
-
+    else:
+        msg(os.getenv("IN_MPI"), 'I am running.')
 
 def msg(m, string=''):
     print(('Message from %d: %s \t '%(MPI.COMM_WORLD.Get_rank(), string))+str(m))

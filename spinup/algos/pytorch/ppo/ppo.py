@@ -6,7 +6,7 @@ import time
 import spinup.algos.pytorch.ppo.core as core
 from spinup.utils.logx import EpochLogger
 from spinup.utils.mpi_pytorch import setup_pytorch_for_mpi, sync_params, mpi_avg_grads
-from spinup.utils.mpi_tools import mpi_fork, mpi_avg, proc_id, mpi_statistics_scalar, num_procs
+from spinup.utils.mpi_tools import mpi_fork, mpi_avg, proc_id, mpi_statistics_scalar, num_procs, msg
 
 
 class PPOBuffer:
@@ -203,7 +203,8 @@ def ppo(env_fn, actor_critic=core.MLPActorCritic, ac_kwargs=dict(), seed=0,
     seed += 10000 * proc_id()
     torch.manual_seed(seed)
     np.random.seed(seed)
-
+    msg(seed, 'seed')
+    
     # Instantiate environment
     env = env_fn()
     obs_dim = env.observation_space.shape

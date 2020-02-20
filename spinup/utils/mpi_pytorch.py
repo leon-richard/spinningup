@@ -3,7 +3,7 @@ import numpy as np
 import os
 import torch
 from mpi4py import MPI
-from spinup.utils.mpi_tools import broadcast, mpi_avg, num_procs, proc_id
+from spinup.utils.mpi_tools import broadcast, mpi_avg, num_procs, proc_id, msg
 
 def setup_pytorch_for_mpi():
     """
@@ -30,6 +30,10 @@ def sync_params(module):
     """ Sync all parameters of module across all MPI processes. """
     if num_procs()==1:
         return
+    old_param = [p for p in module.parameters()]
+    msg(old_param[0][:3], 'old param')
     for p in module.parameters():
         p_numpy = p.data.numpy()
         broadcast(p_numpy)
+    new_param = [p for p in module.parameters()]
+    msg(new_param[0][:3], 'new param')

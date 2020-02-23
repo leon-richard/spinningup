@@ -150,4 +150,9 @@ if __name__ == '__main__':
     env, get_action = load_policy_and_env(args.fpath, 
                                           args.itr if args.itr >=0 else 'last',
                                           args.deterministic)
+    if 'BulletEnv' in env.spec.id:
+        import gym
+        import pybullet_envs
+        env = gym.make(env.spec.id, renders = True)
+
     run_policy(env, get_action, args.len, args.episodes, not(args.norender))

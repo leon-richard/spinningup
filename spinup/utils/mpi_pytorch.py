@@ -22,18 +22,19 @@ def mpi_avg_grads(module):
     if num_procs()==1:
         return
     for p in module.parameters():
-        p_grad_numpy = p.grad.numpy()   # numpy view of tensor data
-        avg_p_grad = mpi_avg(p.grad)
+        p_grad = p.grad.cpu()
+        p_grad_numpy = p_grad.numpy()   # numpy view of tensor data
+        avg_p_grad = mpi_avg(p_grad_numpy)
         p_grad_numpy[:] = avg_p_grad[:]
+        p.grad.copy_(p_grad)
 
 def sync_params(module):
     """ Sync all parameters of module across all MPI processes. """
     if num_procs()==1:
         return
-    old_param = [p for p in module.parameters()]
-    msg(old_param[0][:3], 'old param')
     for p in module.parameters():
-        p_numpy = p.data.numpy()
+        p_data = p.data.cpu()
+        p_numpy = p_data.numpy()
         broadcast(p_numpy)
-    new_param = [p for p in module.parameters()]
-    msg(new_param[0][:3], 'new param')
+        if p.device.type != 'cpu' and proc_id() != 0:
+            p.data.copy_(p_data)    # copy parameters back to GPU
